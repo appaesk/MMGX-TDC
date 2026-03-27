@@ -1,131 +1,109 @@
-# MMGX: Multiple Molecular Graph eXplainable Discovery
-Enhancing Model Learning and Interpretation Using Multiple Molecular Graph Representations for Compound Property and Activity Prediction 
+# MMGX: Multiple Molecular Graph eXplainable Discovery for TDC Benchmark
+This is the fork repository for MMGX for TDC benchmarking.
+Please kindly see main reporsitory of [MMGX](https://github.com/ohuelab/MMGX) for more detail
 
 ![graphical abstract](https://github.com/ohuelab/mmgx/blob/main/blob/graphicalabstract.png?raw=true)
 
-## Usage 💻
+## Benchmarking 💻
 
-### 1. Install environment
+## 1. Installing MMGX and TDC
 
-This code was tested in Python 3.8 with PyTorch 1.13 and rdkit 2023.3.2
-- Using [Conda](https://www.anaconda.com/):
-`conda env create -f mmgx.yml`
-- Then, activate the environment
-`conda activate mmgx`
-- Some packages may not be installed successfully, please kindly install again.
+- Install [MMGX](https://github.com/ohuelab/MMGX) by following the MMGX installation guidelines.
+- Install [TDC](https://tdc.readthedocs.io/en/main/install.html) using `pip install PyTDC`
+
+## 2. Configuring datasets
+
+Copy and paste the following lines into `dataset/_dataset.csv`:
+
+```csv
+caco2_wang,X,y,s,regression,1
+hia_hou,X,y,s,classification,1
+pgp_broccatelli,X,y,s,classification,1
+bioavailability_ma,X,y,s,classification,1
+lipophilicity_astrazeneca,X,y,s,regression,1
+solubility_aqsoldb,X,y,s,regression,1
+bbb_martins,X,y,s,classification,1
+ppbr_az,X,y,s,regression,1
+vdss_lombardo,X,y,s,regression,1
+cyp2d6_veith,X,y,s,classification,1
+cyp3a4_veith,X,y,s,classification,1
+cyp2c9_veith,X,y,s,classification,1
+cyp2d6_substrate_carbonmangels,X,y,s,classification,1
+cyp3a4_substrate_carbonmangels,X,y,s,classification,1
+cyp2c9_substrate_carbonmangels,X,y,s,classification,1
+half_life_obach,X,y,s,regression,1
+clearance_microsome_az,X,y,s,regression,1
+clearance_hepatocyte_az,X,y,s,regression,1
+ld50_zhu,X,y,s,regression,1
+herg,X,y,s,classification,1
+ames,X,y,s,classification,1
+dili,X,y,s,classification,1
 ```
-import torch
-!pip install torch-scatter -f https://data.pyg.org/whl/torch-{torch.__version__}.html
-!pip install torch-sparse -f https://data.pyg.org/whl/torch-{torch.__version__}.html
-```
 
-### 2. Prepare dataset
+## 3. Downloading and constructing datasets
 
-- Prepare dataset in `dataset/` folder. Dataset should be in `.csv` format with `smiles`, `label`, and `splitting` columns.
-- Indicate the column name in `dataset/_dataset.csv` file.
+1. Run `tdc_dataset.py` to download and construct dataset splits.
+2. The default split uses 5 seeds (0-4) as different folds for training.
+3. Datasets are saved in the `dataset` folder. Each dataset folder contains `train_0_*.csv`, `val_0_*.csv`, and `test.csv`, where `*` is the fold number.
 
-### 3. Hyperparameter tuning
+## 4. Training the model
 
-- [dataset] = name of dataset without `.csv` extension
-- [model] = {GAT, GIN, GAT_edge, Benchmark_GCN, Benchmark_GIN, Benchmark_AttentiveFP}
-- [schema] = {A (for atom graph only), AR_0 (for combination with pooling), R (for reduced graph)} 
-- [reduced] = {functional, junctiontree, pharmacophore}
+Run `tdc_main.py` with the command below. This loops through datasets in the list and trains three model variants:
+
+- MMGX_A+F (atom + functional)
+- MMGX_A+P (atom + pharmacophore)
+- MMGX_A+J (atom + junction tree)
+
+The reported TDC benchmark result is from MMGX_A+P.
+
+> Note: Most datasets use the same settings below, but `cyp3a4_substrate_carbonmangels` and `ppbr_az` use `batch_size 16`.
 
 ```bash
-python3 hyperparameter.py \
--f [dataset] \
--m [model] \
---schema [schema] \
---reduced [reduced_(optional)] \
---mol_embedding 256 \
---batch_normalize \
---fold 5 \
---seed 42
+list_file=(ames ...)
+list=(functional pharmacophore junctiontree)
+
+for name in "${list_file[@]}"; do
+    echo "Processing $name ..."
+    for item in "${list[@]}"; do
+        python3 tdc_main.py \
+            -f "$name" \
+            -m GIN \
+            --schema AR_0 \
+            --reduced "$item" \
+            --vocab_len 100 \
+            --mol_embedding 256 \
+            --batch_normalize \
+            --fold 5 \
+            --seed 0 \
+            --batch_size 32 \
+            --num_layers 3 \
+            --num_layers_reduced 2 \
+            --in_channels 128 \
+            --hidden_channels 128 \
+            --out_channels 128 \
+            --num_layers_self 3 \
+            --num_layers_self_reduced 2
+    done
+done
 ```
 
-- Examples
+## 5. Collecting results
 
-```bash
-# Example, for Atom graph only model
-python3 hyperparameter.py \
--f bbbp \
--m GIN \
---schema A \
---reduced \
---mol_embedding 256 \
---batch_normalize \
---fold 5 \
---seed 42
+Run `tdc_submit.py` to generate the submission format for the TDC benchmark.
 
-# Example, for Functional graph only model
-python3 hyperparameter.py \
--f bbbp \
--m GIN \
---schema R \
---reduced functional \
---mol_embedding 256 \
---batch_normalize \
---fold 5 \
---seed 42
+> Note: The selected model was set to `GIN_AR_0_pharmacophore` for MMGX_A+P.
 
-# Example, for 2-graph only model (Atom+Functional)
-python3 hyperparameter.py \
--f bbbp \
--m GIN \
---schema AR_0 \
---reduced functional \
---mol_embedding 256 \
---batch_normalize \
---fold 5 \
---seed 42
+## Result analysis
 
-# Example, for 3-graph model (Atom+Functional+Pharmacophore)
-python3 hyperparameter.py \
--f bbbp \
--m GIN \
---schema AR_0 \
---reduced functional pharmacophore \
---mol_embedding 256 \
---batch_normalize \
---fold 5 \
---seed 42
-```
+> As of: 2026 March 23, 20:07
+> Only ADMET Group Leaderboard
 
-### 4. Train and test the model
+- Only models appear in all benchmarks
+- Ranking by subcategory then size of dataset
 
-(All can be retrieved from hyperparameter tuning)
-- [dataset] = name of dataset without `.csv` extension
-- [model] = {GAT, GIN, GAT_edge, Benchmark_GCN, Benchmark_GIN, Benchmark_AttentiveFP}
-- [schema] = {A (for atom graph only), AR_0 (for combination with pooling), R (for reduced graph)} 
-- [reduced] = {functional, junctiontree, pharmacophore}
-- [batch_size] = {batch size}
-- [number_of_layer] = {number of node embedding layers for Atom graph}
-- [number_of_layer_reduced] = {number of node embedding layers for reduced graph}
-- [in_channels] = {number of input features}
-- [hidden_channels] = {number of hidden features}
-- [out_channels] = {number of output features}
-- [number_of_layer_self] = {number of molecule embedding layers for Atom graph}
-- [number_of_layer_self_reduced] = {number of molecule embedding layers for reduced graph}
+![rank comparison](https://github.com/ohuelab/mmgx/tdc_results/main/tdc_results/tdc_leaderboard_bump_chart_grouped.png?raw=true)
 
-```bash
-python3 main.py \
--f [dataset] \
--m [model] \
---schema [schema] \
---reduced [reduced graph (optional)] \
---mol_embedding 256 \
---batch_normalize \
---fold 5 \
---seed 42 \
---batch_size [batch_size] \
---num_layers [number_of_layer] \
---num_layers_reduced [number_of_layer_reduced] \
---in_channels [in_channels] \
---hidden_channels [hidden_channels] \
---out_channels [out_channels] \
---num_layers_self [number_of_layer_self] \
---num_layers_self_reduced [number_of_layer_self_reduced] \
-```
+![zscore comparison](https://github.com/ohuelab/mmgx/tdc_results/main/tdc_results/tdc_leaderboard_bump_chart_grouped_zscore.png?raw=true)
 
 ## Citation 📃
 > - Kengkanna A, Ohue M. **Enhancing property and activity prediction and interpretation using multiple molecular graph representations with MMGX**. *Communications Chemistry*, 7: 74, 2024. [doi: 10.1038/s42004-024-01155-w](https://doi.org/10.1038/s42004-024-01155-w)
