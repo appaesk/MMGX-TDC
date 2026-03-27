@@ -7,12 +7,12 @@ Please kindly see main repository of [MMGX](https://github.com/ohuelab/MMGX) for
 
 ## Benchmarking 💻
 
-## 1. Installing MMGX and TDC
+### 1. Installing MMGX and TDC
 
 - Install [MMGX](https://github.com/ohuelab/MMGX) by following the MMGX installation guidelines.
 - Install [TDC](https://tdc.readthedocs.io/en/main/install.html) using `pip install PyTDC`
 
-## 2. Configuring datasets
+### 2. Configuring datasets
 
 Copy and paste the following lines into `dataset/_dataset.csv`:
 
@@ -41,13 +41,13 @@ ames,X,y,s,classification,1
 dili,X,y,s,classification,1
 ```
 
-## 3. Downloading and constructing datasets
+### 3. Downloading and constructing datasets
 
 1. Run `tdc_dataset.py` to download and construct dataset splits.
 2. The default split uses 5 seeds (0-4) as different folds for training.
 3. Datasets are saved in the `dataset` folder. Each dataset folder contains `train_0_*.csv`, `val_0_*.csv`, and `test.csv`, where `*` is the fold number.
 
-## 4. Training the model
+### 4. Training the model
 
 Run `tdc_main.py` with the command below. This loops through datasets in the list and trains three model variants:
 
@@ -88,14 +88,13 @@ for name in "${list_file[@]}"; do
 done
 ```
 
-## 5. Collecting results
+### 5. Collecting results
 
 Run `tdc_submit.py` to generate the submission format for the TDC benchmark.
 
 > Note: The selected model was set to `GIN_AR_0_pharmacophore` for MMGX_A+P.
 
-## Result analysis
-
+## Result analysis 📈
 As of: 2026 March 23, 20:07
 
 Only ADMET Group Leaderboard
