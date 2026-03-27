@@ -1,6 +1,7 @@
 # MMGX: Multiple Molecular Graph eXplainable Discovery for TDC Benchmark
 This is the fork repository for MMGX for TDC benchmarking.
-Please kindly see main reporsitory of [MMGX](https://github.com/ohuelab/MMGX) for more detail
+
+Please kindly see main repository of [MMGX](https://github.com/ohuelab/MMGX) for more detail.
 
 ![graphical abstract](https://github.com/ohuelab/mmgx/blob/main/blob/graphicalabstract.png?raw=true)
 
@@ -95,15 +96,16 @@ Run `tdc_submit.py` to generate the submission format for the TDC benchmark.
 
 ## Result analysis
 
-> As of: 2026 March 23, 20:07
-> Only ADMET Group Leaderboard
+As of: 2026 March 23, 20:07
+
+Only ADMET Group Leaderboard
 
 - Only models appear in all benchmarks
-- Ranking by subcategory then size of dataset
+- X-axis ordered by subcategory then size of dataset
 
-![rank comparison](https://github.com/ohuelab/mmgx/tdc_results/main/tdc_results/tdc_leaderboard_bump_chart_grouped.png?raw=true)
+![rank comparison](https://github.com/appaesk/MMGX-TDC/blob/main/tdc_results/tdc_leaderboard_bump_chart_grouped.png?raw=true)
 
-![zscore comparison](https://github.com/ohuelab/mmgx/tdc_results/main/tdc_results/tdc_leaderboard_bump_chart_grouped_zscore.png?raw=true)
+![zscore comparison](https://github.com/appaesk/MMGX-TDC/blob/main/tdc_results/tdc_leaderboard_bump_chart_grouped_zscore.png?raw=true)
 
 ## Citation 📃
 > - Kengkanna A, Ohue M. **Enhancing property and activity prediction and interpretation using multiple molecular graph representations with MMGX**. *Communications Chemistry*, 7: 74, 2024. [doi: 10.1038/s42004-024-01155-w](https://doi.org/10.1038/s42004-024-01155-w)
