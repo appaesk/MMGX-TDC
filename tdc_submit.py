@@ -6,7 +6,7 @@ if __name__ == '__main__':
     df_selected = df[df['model_name'] == selected_model]
     submission = {}
     for idx, row in df_selected.iterrows():
-        submission[row['dataset']] = [row['performance'], row['std']]
+        submission[row['dataset']] = [float(row['performance']), float(row['std'])]
     print(submission)
     with open('submission.txt', 'w') as f:
         f.write(str(submission))
