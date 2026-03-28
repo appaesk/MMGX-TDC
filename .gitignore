@@ -1,5 +1,7 @@
 .DS_Store
 *.pyc
+*.sh
 /.DS_Store
 /molgraph/__pycache__
 /dataset/bbbp
+submission.txt

@@ -72,6 +72,10 @@ if __name__ == '__main__':
     trainer.train()
     print("TRAINING COMPLETED!")
 
+    # number of parameters
+    num_params = sum(p.numel() for p in trainer.model.parameters())
+    print('number of parameters:', num_params)
+
     args_test = dict()
     predictions_list = []
     for fold in [0, 1, 2, 3, 4]:
@@ -112,12 +116,16 @@ if __name__ == '__main__':
     # if not exists, create file and write header
     if not os.path.exists(path):
         with open(path, 'w') as f:
-            f.write('log_folder_name,experiment_number,dataset,performance,std\n')
+            f.write('log_folder_name,model_name,experiment_number,dataset,performance,std\n')
+    model_dict = {'functional': 'F', 'pharmacophore': 'P', 'junctiontree': 'J'}
     with open(path, 'a') as f:
         for dataset in results:
             metric = results[dataset][0]
             std = results[dataset][1]
-            f.write(f'{trainer.log_folder_name},{args.experiment_number},{dataset},{metric},{std}\n')
+            model_name = "MMGX_A"
+            for g in args.reduced:
+                model_name += '+' + model_dict[g]
+            f.write(f'{trainer.log_folder_name},{model_name},{args.experiment_number},{dataset},{metric},{std}\n')
 
 
     print('COMPLETED!')
