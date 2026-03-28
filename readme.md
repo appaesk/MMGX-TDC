@@ -17,6 +17,7 @@ Please kindly see main repository of [MMGX](https://github.com/ohuelab/MMGX) for
 Copy and paste the following lines into `dataset/_dataset.csv`:
 
 ```csv
+file,smiles,task,splitting,graphtask,class_number
 caco2_wang,X,y,s,regression,1
 hia_hou,X,y,s,classification,1
 pgp_broccatelli,X,y,s,classification,1
@@ -60,7 +61,7 @@ The reported TDC benchmark result is from MMGX_A+P.
 > Note: Most datasets use the same settings below, but `cyp3a4_substrate_carbonmangels` and `ppbr_az` use `batch_size 16`.
 
 ```bash
-list_file=(ames ...)
+list_file=(ames <list of datasets...>)
 list=(functional pharmacophore junctiontree)
 
 for name in "${list_file[@]}"; do
@@ -92,7 +93,7 @@ done
 
 Run `tdc_submit.py` to generate the submission format for the TDC benchmark.
 
-> Note: The selected model was set to `GIN_AR_0_pharmacophore` for MMGX_A+P.
+> Note: The selected model was set to `MMGX_A+P` for MMGX of atom with pharmacophore graph.
 
 ## Result analysis 📈
 As of: 2026 March 23, 20:07
